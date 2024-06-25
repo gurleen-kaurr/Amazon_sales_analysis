@@ -63,77 +63,6 @@ CREATE TABLE returns (
 -- Importing the data into the table 
 
 -- -------------------------------------------------------------------------------------
--- Exploratory Data Analysis and Pre Processing
--- -------------------------------------------------------------------------------------
-
-
---  Checking total rows count
-
-SELECT * FROM sales;
-
-SELECT COUNT(*)
-FROM sales;
-
--- Checking if there any missing values
-
-SELECT COUNT(*)
-FROM sales
-WHERE id IS NULL 
-   OR order_date IS NULL 
-   OR customer_name IS NULL 
-   OR state IS NULL 
-   OR category IS NULL 
-   OR sub_category IS NULL 
-   OR product_name IS NULL 
-   OR sales IS NULL 
-   OR quantity IS NULL 
-   OR profit IS NULL;
-
---  Checking for duplicate entry
-
-
-SELECT * FROM 
-	(SELECT
-	*,
-	ROW_NUMBER() OVER(PARTITION BY id ORDER BY id) as rn
-FROM sales ) x
-WHERE rn > 1;
-
-
--- -------------------------------------------------------------------------------------
--- Feature Engineering 
--- -------------------------------------------------------------------------------------
-
-
---  creating a year column
-ALTER TABLE sales
-ADD COLUMN YEAR VARCHAR(4);
--- adding year value into the year column
-UPDATE sales
-SET year = EXTRACT(YEAR FROM order_date);
-
--- creating a new column for the month 
-ALTER TABLE sales
-ADD COLUMN MONTH VARCHAR(15);
-
--- adding abbreviated month name  
-UPDATE sales
-SET month = TO_CHAR(order_date, 'mon');
-
--- adding new column as day_name
-ALTER TABLE sales
-ADD COLUMN day_name VARCHAR(15);
-
--- updating day name into the day column
-UPDATE sales 
-SET day_name = TO_CHAR(order_date, 'day');
-
-SELECT TO_CHAR(order_date, 'day')
-FROM sales;
-
-
-
--- -------------------------------------------------------------------------------------
 -- Solving Business Problems 
 -- -------------------------------------------------------------------------------------
 
@@ -156,7 +85,7 @@ GROUP BY 1
 ORDER BY 2 DESC 
 LIMIT 5;
 
--- Q.3 Find out average qty ordered per category 
+-- Q.3 Find out the average quantity ordered per category.
 SELECT
 	category,
 	AVG(quantity) as avg_qty_ordered
@@ -165,7 +94,7 @@ GROUP BY 1
 ORDER BY 2 DESC;
 
 
--- Q.4 Top 5 products that has generated highest revenue 
+-- Q.4 Find the top 5 products that generate the highest revenue. 
 
 SELECT 
     product_name,
@@ -179,7 +108,7 @@ ORDER BY
 LIMIT 5;
 
 
--- Q.5 Top 5 products whose revenue has decreased in comparison to previous year?
+-- Q.5 Find the top 5 products whose revenue has decreased compared to previous year?
 
 WITH py1 
 AS (
@@ -224,6 +153,8 @@ LIMIT 1;
 
 
 -- Q.7 Find out states with highest total orders?
+
+
 SELECT 
 	state,
 	COUNT(id) as total_order
@@ -239,15 +170,19 @@ SELECT
 FROM sales
 GROUP BY 1
 ORDER BY 2 DESC;
+
 	
 -- Q.9 Calculate the profit margin percentage for each sale (Profit divided by Sales).
 
+
 SELECT 
 	profit/sales as profit_mergin
-FROM sales
+FROM sales;
+	
 
--- 10 Calculate the percentage contribution of each sub-category to 
+-- Q.10 Calculate the percentage contribution of each sub-category to 
 -- the total sales amount for the year 2023.
+	
 
 WITH CTE
 	AS (SELECT
@@ -265,3 +200,5 @@ SELECT
 FROM cte
 CROSS JOIN
 (SELECT SUM(sales) AS total_sales FROM sales WHERE year = '2023') AS cte1;
+
+
